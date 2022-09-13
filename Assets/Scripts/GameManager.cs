@@ -14,13 +14,18 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] int numBalls;
 
+    private int currBalls;
+
     private int score;
 
     GameObject currBall;
 
+    private bool isGameOver;
+
     // Start is called before the first frame update
     void Start()
     {
+        currBalls = numBalls;
         UpdateBalls(0);
         currBall = Instantiate(ball, FindBallPos(), ball.transform.rotation);
         currBall.SetActive(false);
@@ -28,27 +33,43 @@ public class GameManager : MonoBehaviour
         score = 0;
         UpdateScore(0);
 
+        isGameOver = false;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        currBall.transform.position = FindBallPos();
+        if (currBalls > 0)
+        {
+            currBall.transform.position = FindBallPos();
+        }
         //Debug.Log("Mouse Position: " + mousePos.x);
 
-        if (Input.GetMouseButtonDown(0))
+        if (currBalls > 0)
         {
-            currBall.SetActive(true);       
-        }
+            if (Input.GetMouseButtonDown(0))
+            {
+                currBall.SetActive(true);
+            }
 
-        if (Input.GetMouseButtonUp(0))
+            if (Input.GetMouseButtonUp(0))
+            {
+                UpdateBalls(-1);
+                Rigidbody currBallRb = currBall.GetComponent<Rigidbody>();
+                currBallRb.useGravity = true;
+
+                if (currBalls > 0)
+                {
+                    currBall = Instantiate(ball, FindBallPos(), ball.transform.rotation);
+                    currBall.SetActive(false);
+                }
+            }
+        } 
+
+        if (isGameOver)
         {
-            UpdateBalls(-1);
-            Rigidbody currBallRb = currBall.GetComponent<Rigidbody>();
-            currBallRb.useGravity = true;
-
-            currBall = Instantiate(ball, FindBallPos(), ball.transform.rotation);
-            currBall.SetActive(false);
+            Debug.Log("Game Over!");
         }
 
 
@@ -56,7 +77,7 @@ public class GameManager : MonoBehaviour
 
     private Vector3 FindBallPos()
     {
-        
+
         Vector3 ballPos = ball.transform.position;
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, 0));
@@ -75,8 +96,19 @@ public class GameManager : MonoBehaviour
 
     public void UpdateBalls(int updateNum)
     {
-        numBalls += updateNum;
-        ballsRemainingText.text = "Balls Remaining: " + numBalls;
+        currBalls += updateNum;
+        ballsRemainingText.text = "Balls Remaining: " + currBalls;
+    }
+
+    public void SetGameOver()
+    {
+        if (currBalls <= 0)
+        {
+            if (GameObject.FindGameObjectsWithTag("Ball").Length <= 1)
+            {
+                isGameOver = true;
+            }
+        }
     }
 
 }

@@ -22,7 +22,7 @@ public class ScoopManager : MonoBehaviour
 
         StartCoroutine(ResetCollide());
 
-        Debug.Log("Value passed: " + scoreVal);
+        //Debug.Log("Value passed: " + scoreVal);
         gameManager.UpdateScore(scoreVal);
     }
 
